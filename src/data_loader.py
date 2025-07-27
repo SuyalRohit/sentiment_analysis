@@ -1,35 +1,56 @@
+import logging
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
-def load_and_clean_data(filepath):
+logger = logging.getLogger(__name__)
+
+def load_data(filepath: str) -> pd.DataFrame:
+    """
+    Load CSV into DataFrame and remove duplicates.
+
+    Args:
+        filepath (str): Path to the CSV file.
+
+    Returns:
+        pd.DataFrame: Cleaned DataFrame without duplicates.
+
+    Raises:
+        ValueError: If required columns are missing.
+    """
     df = pd.read_csv(filepath)
-    print(f"Initial shape: {df.shape}")
-
-    # Drop duplicates
+    required = {"review", "sentiment"}
+    missing = required - set(df.columns)
+    raise ValueError(f"Missing Columns: {missing}")
+    
+    # Drop duplicates and log how many were removed
+    duplicate_removed = 0
     duplicates = df.duplicated().sum()
     if duplicates > 0:
+        before = len(df)
         df.drop_duplicates(inplace=True)
-        print(f"Removed {duplicates} duplicate rows.")
-
+        after = len(df)
+        duplicate_removed = before - after
+    
+    logger.info(f"Removed {duplicate_removed} duplicate records from data")
     return df
 
-def plot_basic_eda(df):
-    df['words_per_review'] = df['review'].str.split().apply(len)
+def split_data(
+    df: pd.DataFrame, test_size: float, random_state: int) -> tuple[pd.Series, pd.Series, pd.Series, pd.Series]:
+    """
+    Split DataFrame into train/test sets.
 
-    # Distribution
-    sns.histplot(df['words_per_review'], bins=50, kde=True)
-    plt.title("Distribution of Words Per Review")
-    plt.show()
+    Args:
+        df (pd.DataFrame): DataFrame containing 'review' and 'sentiment' columns.
+        test_size (float): Fraction of data to reserve for testing.
+        random_state (int): Seed for reproducibility.
 
-    # Boxplot by sentiment
-    sns.boxplot(x='sentiment', y='words_per_review', data=df)
-    plt.title("Review Length vs Sentiment")
-    plt.show()
-
-    # Sentiment counts
-    df['sentiment'].value_counts().plot.barh()
-    plt.title("Sentiment Count")
-    plt.show()
-
-    df.drop('words_per_review', axis=1, inplace=True)
+    Returns:
+        Tuple containing train/test splits for features and labels.
+    """
+    X = df["review"]
+    y = df["sentiment"]
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size=test_size, random_state=random_state, stratify=y
+    )
+    logger.info(f"Train size: {len(X_train)}, Test size: {len(X_test)}")
+    return X_train, X_test, y_train, y_test

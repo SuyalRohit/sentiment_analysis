@@ -1,32 +1,14 @@
 import os
 import numpy as np
-from transformers import (
-    AutoTokenizer, AutoModelForSequenceClassification,
-    TrainingArguments, Trainer
-)
+from transformers import TrainingArguments, Trainer, PreTrainedModel
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from datasets import Dataset
 
-def get_tokenizer(model_name="google-bert/bert-base-uncased"):
-    return AutoTokenizer.from_pretrained(model_name)
 
-def tokenize_dataset(dataset, tokenizer):
-    def tokenizer_function(batch):
-        return tokenizer(batch["review"], padding="max_length", truncation=True, max_length=512)
-    tokenized = dataset.map(tokenizer_function, batched=True, remove_columns=["review"])
-    tokenized.set_format("torch")
-    return tokenized
-
-def compute_metrics(eval_pred):
-    logits, labels = eval_pred
-    predictions = np.argmax(logits, axis=1)
-    return {
-        "accuracy": accuracy_score(labels, predictions),
-        "precision": precision_score(labels, predictions),
-        "recall": recall_score(labels, predictions),
-        "f1": f1_score(labels, predictions),
-    }
-
-def get_training_args(output_dir, run_name, num_train_epochs=2):
+def get_training_args(output_dir: str, run_name: str, num_train_epochs: int=2) -> TrainingArguments:
+    """
+    Create Hugging Face TrainingArguments with specified training configuration.
+    """
     os.makedirs(output_dir, exist_ok=True)
     return TrainingArguments(
         output_dir=output_dir,
@@ -46,7 +28,10 @@ def get_training_args(output_dir, run_name, num_train_epochs=2):
         report_to="none"
     )
 
-def get_trainer(model, args, train_dataset, eval_dataset):
+def get_trainer(model: PreTrainedModel, args: TrainingArguments, train_dataset: Dataset, eval_dataset: Dataset) -> Trainer:
+    """
+    Instantiate and return a Hugging Face Trainer for model training and evaluation.
+    """
     return Trainer(
         model=model,
         args=args,
@@ -54,3 +39,16 @@ def get_trainer(model, args, train_dataset, eval_dataset):
         eval_dataset=eval_dataset,
         compute_metrics=compute_metrics
     )
+
+def compute_metrics(eval_pred: tuple) -> dict:
+    """
+    Compute evaluation metrics (accuracy, precision, recall, f1) given predictions.
+    """
+    logits, labels = eval_pred
+    predictions = np.argmax(logits, axis=1)
+    return {
+        "accuracy": accuracy_score(labels, predictions),
+        "precision": precision_score(labels, predictions),
+        "recall": recall_score(labels, predictions),
+        "f1": f1_score(labels, predictions),
+    }

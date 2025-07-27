@@ -1,0 +1,50 @@
+import logging
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+logger = logging.getLogger(__name__)
+
+def basic_dim(df):
+    """Log shape, column names, and datatypes."""
+    logger.info(f"Shape: {df.shape}")
+    logger.info(f"Columns: {df.columns.tolist()}")
+    logger.info(f"Datatypes:\n{df.dtypes}")
+
+def check_missing(df):
+    """Log total missing values."""
+    total_missing = df.isnull().sum().sum()
+    logger.info(f'Total missing values: {total_missing}')
+
+def check_duplicates(df):
+    """Log number of duplicate rows."""
+    num_dupes = df.duplicated().sum()
+    logger.info(f'Duplicate rows: {num_dupes}')
+
+
+def plot_basic_eda(df):
+    """
+    Plots basic EDA visualizations for review data.
+    Shows distribution of review lengths and sentiment classes.
+    """
+    df = df.copy()
+    df['words_per_review'] = df['review'].astype(str).str.split().apply(len)
+
+    # Distribution
+    sns.histplot(df['words_per_review'], bins=50, kde=True)
+    plt.title("Distribution of Words Per Review")
+    plt.xlabel("Words per Review")
+    plt.tight_layout()
+    plt.show()
+
+    # Boxplot by sentiment
+    sns.boxplot(x='sentiment', y='words_per_review', data=df)
+    plt.title("Review Length vs Sentiment")
+    plt.tight_layout()
+    plt.show()
+
+    # Sentiment counts
+    df['sentiment'].value_counts().plot.barh()
+    plt.title("Sentiment Count")
+    plt.tight_layout()
+    plt.show()
