@@ -7,20 +7,13 @@ logger = logging.getLogger(__name__)
 def load_data(filepath: str) -> pd.DataFrame:
     """
     Load CSV into DataFrame and remove duplicates.
-
-    Args:
-        filepath (str): Path to the CSV file.
-
-    Returns:
-        pd.DataFrame: Cleaned DataFrame without duplicates.
-
-    Raises:
-        ValueError: If required columns are missing.
     """
     df = pd.read_csv(filepath)
     required = {"review", "sentiment"}
     missing = required - set(df.columns)
-    raise ValueError(f"Missing Columns: {missing}")
+    if missing:
+        logger.error(f"Missing Columns: {missing}")
+        raise ValueError(f"Missing Columns: {missing}")
     
     # Drop duplicates and log how many were removed
     duplicates = df.duplicated().sum()
@@ -40,14 +33,6 @@ def split_data(
     df: pd.DataFrame, test_size: float, random_state: int) -> tuple[pd.Series, pd.Series, pd.Series, pd.Series]:
     """
     Split DataFrame into train/test sets.
-
-    Args:
-        df (pd.DataFrame): DataFrame containing 'review' and 'sentiment' columns.
-        test_size (float): Fraction of data to reserve for testing.
-        random_state (int): Seed for reproducibility.
-
-    Returns:
-        Tuple containing train/test splits for features and labels.
     """
     X = df["review"]
     y = df["sentiment"]

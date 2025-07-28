@@ -27,24 +27,26 @@ def plot_basic_eda(df):
     Plots basic EDA visualizations for review data.
     Shows distribution of review lengths and sentiment classes.
     """
-    df = df.copy()
-    df['words_per_review'] = df['review'].astype(str).str.split().apply(len)
+    df_new = df.copy()
+    df_new['words_per_review'] = df_new['review'].astype(str).str.split().apply(len)
 
     # Distribution
-    sns.histplot(df['words_per_review'], bins=50, kde=True)
+    sns.histplot(df_new['words_per_review'], bins=50, kde=True)
     plt.title("Distribution of Words Per Review")
     plt.xlabel("Words per Review")
     plt.tight_layout()
     plt.show()
 
     # Boxplot by sentiment
-    sns.boxplot(x='sentiment', y='words_per_review', data=df)
+    sns.boxplot(x='sentiment', y='words_per_review', data=df_new)
     plt.title("Review Length vs Sentiment")
     plt.tight_layout()
     plt.show()
 
     # Sentiment counts
-    df['sentiment'].value_counts().plot.barh()
+    df_new['sentiment'].value_counts().plot.barh()
     plt.title("Sentiment Count")
     plt.tight_layout()
     plt.show()
+    
+    del(df_new)
