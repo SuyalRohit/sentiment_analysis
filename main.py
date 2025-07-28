@@ -6,6 +6,8 @@ import yaml
 import random
 import numpy as np
 import torch
+
+from transformers import set_seed as hf_set_seed    
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModelForSequenceClassification
 
@@ -32,7 +34,7 @@ def parse_args() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(description="Sentiment Analysis Pipeline")
     parser.add_argument(
-        "--config", "-c", type=str, default="config.yaml",
+        "--config", "-c", required=True, type=str, default="config.yaml",
         help="Path to YAML configuration file"
     )
     return parser.parse_args()
@@ -59,10 +61,21 @@ def main() -> None:
     if logging_config:
         logging.config.dictConfig(logging_config)
     else:
-        # fallback to simple logging if config missing
         logging.basicConfig(level=logging.INFO)
     
     logger = logging.getLogger(__name__)
+    
+    # Seed for reproducibility
+    seed = cfg.get("seed", None)
+    if seed is None:
+        logger.error("Missing 'seed' in config.yaml")
+        sys.exit(1)
+    
+    random.seed(seed)
+    np.random.seed(seed)
+    hf_set_seed(seed)
+    
+    logger.info(f"Global random seed set to {seed}")
 
     logger.info("Starting sentiment analysis pipeline")
 

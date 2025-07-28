@@ -1,3 +1,4 @@
+import os
 import logging
 import pandas as pd
 from sklearn.model_selection import train_test_split
@@ -8,6 +9,8 @@ def load_data(filepath: str) -> pd.DataFrame:
     """
     Load CSV into DataFrame and remove duplicates.
     """
+    if not os.path.isfile(filepath):
+        raise FileNotFoundError(f"Data file not found: {filepath}")
     df = pd.read_csv(filepath)
     required = {"review", "sentiment"}
     missing = required - set(df.columns)
