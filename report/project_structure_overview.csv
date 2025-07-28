@@ -1,0 +1,19 @@
+Component,Description,Key Features
+Root Directory,Main project directory containing all components,Complete modular sentiment analysis framework
+main.py,Main script to run the complete sentiment analysis pipeline,Configurable pipeline with command-line arguments
+config.yaml,Configuration file with hyperparameters and settings,YAML-based configuration management
+requirements.txt,List of all required Python packages and dependencies,"Dependencies: torch, transformers, scikit-learn, spacy"
+data/,Directory containing the dataset files,Centralized data storage and management
+data/imbd_dataset.csv,IMDB movie reviews dataset in CSV format,Binary sentiment classification (positive/negative)
+src/,Source code directory with all Python modules,Modular design for easy maintenance and extension
+src/data_loader.py,Data loading and train-test splitting functionality,Data validation and duplicate removal
+src/preprocessing.py,"Text preprocessing including cleaning, lemmatization, tokenization",Comprehensive text cleaning and NLP preprocessing
+src/eda.py,Exploratory data analysis with visualization functions,Before/after cleaning analysis with word count statistics
+src/traditional_models.py,"Traditional ML models (Logistic Regression, Linear SVC, Naive Bayes)",GridSearchCV hyperparameter tuning for optimal performance
+src/bert_models.py,BERT model fine-tuning implementation using Transformers,HuggingFace integration with training arguments and metrics
+src/evaluation.py,"Model evaluation metrics, confusion matrix, classification reports",JSON output format for metrics and PNG for confusion matrices
+notebooks/,Jupyter notebooks for development and experimentation,Interactive development environment
+notebooks/bert-finetune_raw.ipynb,BERT fine-tuning notebook with raw implementation,Experimental BERT implementation and testing
+outputs/,Directory for all output files and results,Organized output structure for reproducibility
+outputs/evaluation/,Model evaluation results including metrics and confusion matrices,Performance comparison across all models
+outputs/plots/,EDA plots and visualization outputs,Visual analysis of data distributions and model results

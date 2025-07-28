@@ -1,0 +1,5 @@
+Model,Accuracy,Precision,Recall,F1_Score,Model_Type,Training_Time,Complexity,Key_Strengths,Key_Limitations
+BERT,0.9391,0.929,0.9491,0.939,Deep Learning,Longest,High,"Highest accuracy, contextual understanding, state-of-the-art performance","Computationally expensive, requires GPU, longer training time"
+Logistic Regression,0.8866,0.875,0.903,0.8888,Traditional ML,Fast,Medium,"Fast training, interpretable, good baseline performance","Limited feature representation, may miss complex patterns"
+Linear SVC,0.8925,0.8864,0.9013,0.8938,Traditional ML,Fast,Medium,"Good performance, handles high-dimensional data well","Sensitive to feature scaling, no probabilistic output"
+Naive Bayes,0.8657,0.8705,0.8604,0.8654,Traditional ML,Fastest,Low,"Fast training, simple implementation, probabilistic output","Independence assumption often violated, lower overall performance"
