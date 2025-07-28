@@ -56,7 +56,7 @@ def main() -> None:
     except yaml.YAMLError as e:
         print(f"Error parsing config file: {e}", file=sys.stderr)
         sys.exit(1)
-
+        
     logging_config = cfg.get("logging", None)
     if logging_config:
         logging.config.dictConfig(logging_config)
@@ -65,6 +65,13 @@ def main() -> None:
     
     logger = logging.getLogger(__name__)
     
+    # Schema Check
+    required = ["data_path", "output_dir", "seed", "model_name", "batch_size"]
+    for key in required:
+        if key not in cfg:
+            logger.error(f"Missing '{key}' in config")
+            sys.exit(1)
+
     # Seed for reproducibility
     seed = cfg.get("seed", None)
     if seed is None:

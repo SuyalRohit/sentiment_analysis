@@ -46,6 +46,7 @@ def plot_basic_eda(df: pd.DataFrame, save: bool = True, out_dir: str=None) -> No
             plt.savefig(f"{out_dir}/Distribution of Words Per Review.png")
     else:
         plt.show()
+    plt.close()
 
     # Boxplot by sentiment
     sns.boxplot(x='sentiment', y='words_per_review', data=df_new)
@@ -61,6 +62,7 @@ def plot_basic_eda(df: pd.DataFrame, save: bool = True, out_dir: str=None) -> No
             plt.savefig(f"{out_dir}/Review Length vs Sentiment.png")
     else:
         plt.show()
+    plt.close()
     
     # Sentiment counts
     df_new['sentiment'].value_counts().plot.barh()
@@ -76,6 +78,7 @@ def plot_basic_eda(df: pd.DataFrame, save: bool = True, out_dir: str=None) -> No
             plt.savefig(f"{out_dir}/eSentiment Count.png")
     else:
         plt.show()
+    plt.close()
     
     del(df_new)
     

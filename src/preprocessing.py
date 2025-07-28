@@ -2,7 +2,6 @@ import re
 import unicodedata
 import spacy
 from nltk.corpus import stopwords
-from typing import List
 from datasets import Dataset
 import pandas as pd
 from transformers import AutoTokenizer
@@ -57,7 +56,7 @@ def preprocess_text(text: str) -> str:
     text = remove_non_ascii(text)
     return text
 
-def batch_lemmatize(texts: List[str], stopword_list: set=stop_words) -> List[str]:
+def batch_lemmatize(texts: list[str], stopword_list: set=stop_words) -> list[str]:
     """Batch lemmatize texts with spaCy and remove stopwords from each lemmatized text."""
     lemmatized_texts = []
     for doc in nlp.pipe(texts, batch_size=1000, disable=['parser', 'ner']):

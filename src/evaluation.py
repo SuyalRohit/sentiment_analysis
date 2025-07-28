@@ -1,4 +1,5 @@
 import os
+from typing import Sequence
 import logging
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,7 +34,7 @@ def confusion_matrix_(y_true, y_pred, labels, path: str) -> None:
     plt.close()
     logger.info(f"Saved confusion matrix plot to {path}")
 
-def classification_report_(y_true, y_pred, path: str, target_names=["negative", "positive"]) -> None:
+def classification_report_(y_true: Sequence[int], y_pred: Sequence[int], path: str, target_names=["negative", "positive"]) -> None:
     """
     Generate and print a classification report with precision, recall, and F1-score.
     """
