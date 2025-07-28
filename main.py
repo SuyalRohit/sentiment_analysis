@@ -17,7 +17,7 @@ from src.evaluation import confusion_matrix_, classification_report_, metrics_su
 from src.bert_models import get_training_args, get_trainer, compute_metrics
 
 
-def set_seed(seed: int):
+def set_seed(seed: int) -> None:
     """Set random seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
@@ -26,7 +26,10 @@ def set_seed(seed: int):
         torch.cuda.manual_seed_all(seed)
 
 
-def parse_args():
+def parse_args() -> argparse.Namespace:
+    """
+    Parse command-line arguments for configuration file and output directory.
+    """
     parser = argparse.ArgumentParser(description="Sentiment Analysis Pipeline")
     parser.add_argument(
         "--config", "-c", type=str, default="config.yaml",
@@ -35,7 +38,10 @@ def parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
+    """
+    Execute the entire sentiment-analysis pipeline from data loading to evaluation.
+    """
     args = parse_args()
 
     # Load configuration
@@ -67,10 +73,13 @@ def main():
     except Exception as e:
         logger.error(f"Data loading failed: {e}")
         sys.exit(1)
+        
+    df_traditional = df.copy()
+    df_bert = df.copy()
     
     # EDA before Cleaning
     try:
-        run_eda(df, "before data cleaning", logger)
+        run_eda(df_traditional, "before data cleaning", logger)
     except Exception as e:
         logger.error(f"EDA before cleaning failed: {e}")
         sys.exit(1)
@@ -80,10 +89,10 @@ def main():
         logger.info("Starting text cleaning...")
 
         # Apply all cleaning steps (excluding lemmatization)
-        df["clean_text"] = df["review"].astype(str).apply(preprocess_text)
+        df_traditional["clean_text"] = df_traditional["review"].astype(str).apply(preprocess_text)
 
         # Batch lemmatization with stopword removal
-        df["clean_text"] = batch_lemmatize(df["clean_text"].tolist())
+        df_traditional["clean_text"] = batch_lemmatize(df_traditional["clean_text"].tolist())
 
         logger.info("Text cleaning complete. Example clean text:")
         logger.info(df["clean_text"].head(3).to_list())
@@ -93,7 +102,7 @@ def main():
     
     # EDA After Cleaning
     try:
-        run_eda(df, "after data cleaning", logger)
+        run_eda(df_traditional, "after data cleaning", logger)
     except Exception as e:
         logger.error(f"EDA after cleaning failed: {e}")
         sys.exit(1)
@@ -101,7 +110,7 @@ def main():
     # Splitting
     try:
         X_train, X_test, y_train, y_test = split_data(
-            df,
+            df_traditional,
             test_size=cfg["data"].get("test_size", 0.2),
             random_state=cfg.get("seed", 42)
         )
@@ -172,15 +181,6 @@ def main():
     except Exception as e:
         logger.error(f"Evaluation failed: {e}")
         sys.exit(1)
-    
-    # Reloading DataFrame For BERT
-    try:
-        df_bert = load_data(cfg["data"]["input_path"])
-        logger.info(f"Reloaded raw dataframe for BERT, {len(df_bert)} entries.")
-    except Exception as e:
-        logger.error(f"Data loading failed: {e}")
-        sys.exit(1)
-    
     
     # Prepareing Hugging Face Dataset
     try:

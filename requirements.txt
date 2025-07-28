@@ -1,0 +1,14 @@
+argparse
+datasets
+PyYAML
+numpy
+pandas
+matplotlib
+seaborn
+nltk
+spacy
+scikit-learn
+torch
+transformers
+unicodedata
+

@@ -15,7 +15,10 @@ from sklearn.metrics import (
 
 logger = logging.getLogger(__name__)
 
-def confusion_matrix_(y_true, y_pred, labels, path):
+def confusion_matrix_(y_true, y_pred, labels, path: str) -> None:
+    """
+    Compute and display the confusion matrix for true vs. predicted labels.
+    """
     assert len(y_true) == len(y_pred)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     cm = confusion_matrix(y_true, y_pred)
@@ -30,7 +33,10 @@ def confusion_matrix_(y_true, y_pred, labels, path):
     plt.close()
     logger.info(f"Saved confusion matrix plot to {path}")
 
-def classification_report_(y_true, y_pred, path, target_names=["negative", "positive"]):
+def classification_report_(y_true, y_pred, path: str, target_names=["negative", "positive"]) -> None:
+    """
+    Generate and print a classification report with precision, recall, and F1-score.
+    """
     assert len(y_true) == len(y_pred)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     report_text = classification_report(y_true, y_pred, target_names=target_names)
@@ -40,7 +46,10 @@ def classification_report_(y_true, y_pred, path, target_names=["negative", "posi
         json.dump(report_dict, f, indent=4)
     logger.info(f"Saved classification report to {path}")
 
-def metrics_summary(y_true, y_pred, path):
+def metrics_summary(y_true, y_pred, path: str) -> None:
+    """
+    Summarize evaluation metrics across all models into a DataFrame.
+    """
     assert len(y_true) == len(y_pred)
     os.makedirs(os.path.dirname(path), exist_ok=True)
     summary = {

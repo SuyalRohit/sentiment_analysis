@@ -17,7 +17,7 @@ replacement_map = {
 }
 
 def strip_html_and_punct(text: str) -> str:
-    """Remove HTML tags and most punctuation."""
+    """    Remove HTML tags and punctuation from a text string."""
     if not isinstance(text, str):
         return ""
     text = text.lower()
@@ -25,7 +25,7 @@ def strip_html_and_punct(text: str) -> str:
     return text
 
 def remove_accents(text: str) -> str:
-    """Normalize accented characters to ASCII equivalents."""
+    """Convert accented characters in text to unaccented counterparts."""
     return ''.join(
         c for c in unicodedata.normalize('NFKD', text)
         if not unicodedata.combining(c)
