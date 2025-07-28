@@ -1,11 +1,14 @@
 import re
 import unicodedata
 import spacy
-import nltk
 from nltk.corpus import stopwords
 from typing import List
+from datasets import Dataset
+import pandas as pd
+from transformers import AutoTokenizer
+from typing import Any
 
-nltk.download('stopwords')
+
 stop_words = set(stopwords.words('english'))
 nlp = spacy.load('en_core_web_sm')
 
@@ -62,3 +65,49 @@ def batch_lemmatize(texts: List[str], stopword_list: set=stop_words) -> List[str
         lemmas = remove_stopwords(lemmas, stopword_list)
         lemmatized_texts.append(lemmas)
     return lemmatized_texts
+
+def clean_batch(batch):
+    """
+    Using clean_text function to batch-clean the dataset's 'review' column.
+    """
+    batch["review"] = [preprocess_text(x) for x in batch["review"]]
+    return batch
+
+def prepare_hf_dataset(df: pd.DataFrame, test_size: float=0.2, seed: int=42) -> Dataset:
+    """
+    Prepare Hugging Face Dataset by mapping sentiment to labels,
+    splitting into train/test, and batch cleaning.
+    """
+    df["labels"] = df["sentiment"].map({"positive": 1, "negative": 0})
+    dataset = Dataset.from_pandas(df[["review", "labels"]])
+    dataset = dataset.train_test_split(test_size=test_size, seed=seed, shuffle=True)
+    dataset = dataset.map(clean_batch, batched=True)
+    return dataset
+
+def get_tokenizer(model_name: str = "bert-base-uncased") -> AutoTokenizer:
+    """
+    Load and return a HuggingFace tokenizer given a pretrained model name.
+    """
+    return AutoTokenizer.from_pretrained(model_name)
+
+def tokenize_dataset(dataset: Dataset, tokenizer: AutoTokenizer, max_length: int = 512) -> Dataset:
+    """
+    Tokenize the 'review' field of the HuggingFace Dataset using the provided tokenizer.
+    """
+
+    def tokenizer_function(batch: dict[str, list[str]]) -> dict[str, Any]:
+        """
+        Tokenizes a batch of examples.
+        """
+        return tokenizer(
+            batch["review"],
+            padding="max_length",
+            truncation=True,
+            max_length=max_length,
+            return_attention_mask=True,
+            return_token_type_ids=True,
+        )
+    tokenized = dataset.map(tokenizer_function, batched=True, remove_columns=["review"])
+    tokenized.set_format("torch")
+
+    return tokenized

@@ -50,3 +50,12 @@ def plot_basic_eda(df):
     plt.show()
     
     del(df_new)
+    
+def run_eda(df, stage: str, logger, plot=True):
+    logger.info(f"Starting EDA {stage}")
+    basic_dim(df)
+    check_missing(df)
+    check_duplicates(df)
+    if plot:
+        plot_basic_eda(df)
+    logger.info(f"EDA {stage} complete.")

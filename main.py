@@ -10,11 +10,10 @@ from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModelForSequenceClassification
 
 from src.data_loader import load_data, split_data
-from src.eda import basic_dim, check_duplicates, check_missing, plot_basic_eda
-from src.text_cleaner import preprocess_text, batch_lemmatize
+from src.eda import run_eda
+from src.preprocessing import preprocess_text, batch_lemmatize, prepare_hf_dataset, get_tokenizer, tokenize_dataset
 from src.traditional_models import train_models
 from src.evaluation import confusion_matrix_, classification_report_, metrics_summary
-from src.bert_preprocessing import prepare_hf_dataset, get_tokenizer, tokenize_dataset
 from src.bert_models import get_training_args, get_trainer, compute_metrics
 
 
@@ -69,16 +68,11 @@ def main():
         logger.error(f"Data loading failed: {e}")
         sys.exit(1)
     
-    # EDA
+    # EDA before Cleaning
     try:
-        logger.info("Starting EDA before Data Cleaning")
-        basic_dim(df)
-        check_missing(df)
-        check_duplicates(df)
-        plot_basic_eda(df)  # This will display plots to the user
-        logger.info("EDA complete.")
+        run_eda(df, "before data cleaning", logger)
     except Exception as e:
-        logger.error(f"EDA failed: {e}")
+        logger.error(f"EDA before cleaning failed: {e}")
         sys.exit(1)
     
     # Text Cleaning
@@ -97,16 +91,11 @@ def main():
         logger.error(f"Text cleaning failed: {e}")
         sys.exit(1)
     
-    # EDA
+    # EDA After Cleaning
     try:
-        logger.info("Starting EDA after Data Cleaning")
-        basic_dim(df)
-        check_missing(df)
-        check_duplicates(df)
-        plot_basic_eda(df)  # This will display plots to the user
-        logger.info("EDA complete.")
+        run_eda(df, "after data cleaning", logger)
     except Exception as e:
-        logger.error(f"EDA failed: {e}")
+        logger.error(f"EDA after cleaning failed: {e}")
         sys.exit(1)
     
     # Splitting
@@ -132,10 +121,10 @@ def main():
 
     # Train Traditional ML Model
     try:
-        models_to_train = cfg["traditional"].get("models", ["logreg", "lsvc", "nb"])
-        cv_folds = cfg["traditional"].get("cv_folds", 5)
+        models_to_train = cfg["traditional"]["models"]
+        cv_folds = cfg["traditional"]["cv_folds"]
         logger.info(f"Training traditional models: {models_to_train} with {cv_folds}-fold CV")
-        trained_models = train_models(X_train, y_train, models=models_to_train, cv=cv_folds)
+        trained_models = train_models(X_train, y_train, models=models_to_train, cv=cv_folds, cfg_traditional=cfg["traditional"])
         logger.info("Traditional models training complete.")
     except Exception as e:
         logger.error(f"Traditional model training failed: {e}")
@@ -197,8 +186,8 @@ def main():
     try:
         hf_dataset = prepare_hf_dataset(
             df_bert,
-            test_size=cfg["bert"].get("val_split", 0.1),
-            seed=cfg.get("seed", 42)
+            test_size=cfg["data"]["test_size"],
+            seed=cfg["seed"]
         )
         logger.info("Prepared and cleaned Hugging Face Dataset.")
     except Exception as e:
@@ -271,10 +260,10 @@ def main():
         eval_output = trainer.predict(tokenized_dataset["test"])
         y_pred = np.argmax(eval_output.predictions, axis=1)
         y_true = eval_output.label_ids
-    
-        # Assume class labels are [0, 1] with mapping 0: "negative", 1: "positive"
-        target_names = ["negative", "positive"]
-        labels = [0, 1]
+
+        target_names = cfg["label_mapping"]["target_names"]
+        labels = cfg["label_mapping"]["labels"]
+
     
         # 2. Confusion Matrix
         confusion_matrix_(

@@ -47,7 +47,9 @@ bert:
     weight_decay: 0.01
     fp16: true
   output_dir: outputs/bert
-  val_split: 0.1
 
 evaluation:
   output_dir: outputs/evaluation
+  label_mapping:
+    labels: [0, 1]
+    target_names: ["negative", "positive"]
