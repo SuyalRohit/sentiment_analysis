@@ -1,42 +1,53 @@
-seed: 1234
-
-logging:
-  level: INFO
-  format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
-  datefmt: "%Y-%m-%d %H:%M:%S"
-
 data:
-  input_path: "data/dataset.csv"
+  input_path: data/reviews.csv
   test_size: 0.2
 
-eda:
-  run: true
-  output_dir: "outputs/eda"
+logging:
+  version: 1
+  formatters:
+    default:
+      format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+      datefmt: "%Y-%m-%d %H:%M:%S"
+  handlers:
+    console:
+      class: logging.StreamHandler
+      formatter: default
+      level: INFO
+    file:
+      class: logging.FileHandler
+      filename: logs/pipeline.log
+      formatter: default
+      level: DEBUG
+  root:
+    handlers: [console, file]
+    level: DEBUG
+  loggers:
+    transformers:
+      level: WARNING
 
-text_cleaning:
-  lower: true
-  remove_punctuation: true
-  remove_stopwords: true
+seed: 42
 
 traditional:
-  run: true
-  output_dir: "outputs/traditional"
-  params:
-    models: ["naive_bayes", "svm"]
-    cv_folds: 5
+  models: ["logreg","lsvc","nb"]
+  cv_folds: 5
+  tfidf_max_df: [0.75, 1.0]
+  logreg_C: [0.1,1.0]
+  lsvc_alpha: [0.5,1.0]
+  nb_alpha: [0.5,1.0]
 
 bert:
-  run: true
-  val_split: 0.1
   tokenizer:
     model_name: "bert-base-uncased"
     max_length: 128
   training_params:
     epochs: 3
-    batch_size: 16
     learning_rate: 2e-5
-  output_dir: "outputs/bert"
+    per_device_train_batch_size: 16
+    per_device_eval_batch_size: 16
+    weight_decay: 0.01
+    fp16: true
+  output_dir: outputs/bert
+  val_split: 0.1
 
 evaluation:
-  models_dir: ["outputs/traditional", "outputs/bert"]
-  output_dir: "outputs/evaluation"
+  output_dir: outputs/evaluation

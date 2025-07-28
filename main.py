@@ -18,15 +18,6 @@ from src.bert_preprocessing import prepare_hf_dataset, get_tokenizer, tokenize_d
 from src.bert_models import get_training_args, get_trainer, compute_metrics
 
 
-def setup_logging(log_config: dict):
-    """Configure root logger from config."""
-    level = getattr(logging, log_config.get("level", "INFO").upper(), logging.INFO)
-    fmt = log_config.get("format", "%(asctime)s [%(levelname)s] %(name)s: %(message)s")
-    datefmt = log_config.get("datefmt", "%Y-%m-%d %H:%M:%S")
-    logging.basicConfig(level=level, format=fmt, datefmt=datefmt)
-    logging.getLogger("transformers").setLevel(logging.WARNING)
-
-
 def set_seed(seed: int):
     """Set random seeds for reproducibility."""
     random.seed(seed)
@@ -59,10 +50,14 @@ def main():
         print(f"Error parsing config file: {e}", file=sys.stderr)
         sys.exit(1)
 
-    # Setup logging and seeds
-    setup_logging(cfg.get("logging", {}))
+    logging_config = cfg.get("logging", None)
+    if logging_config:
+        logging.config.dictConfig(logging_config)
+    else:
+        # fallback to simple logging if config missing
+        logging.basicConfig(level=logging.INFO)
+    
     logger = logging.getLogger(__name__)
-    set_seed(cfg.get("seed", 42))
 
     logger.info("Starting sentiment analysis pipeline")
 
@@ -235,10 +230,19 @@ def main():
         logger.info(f"Loaded BERT model: {bert_model_name}")
     
         # TrainingArguments
-        num_epochs = cfg["bert"]["training_params"].get("epochs", 3)
-        output_dir = cfg["bert"].get("output_dir", "outputs/bert")
-        run_name = "bert-finetune"
-        training_args = get_training_args(output_dir, run_name, num_train_epochs=num_epochs)
+        bert_cfg = cfg["bert"]
+        tp = bert_cfg["training_params"]
+        
+        training_args = get_training_args(
+            output_dir=bert_cfg["output_dir"],
+            run_name="bert-finetune",
+            num_train_epochs=tp["epochs"],
+            learning_rate=tp["learning_rate"],
+            per_device_train_batch_size=tp["per_device_train_batch_size"],
+            per_device_eval_batch_size=tp["per_device_eval_batch_size"],
+            weight_decay=tp["weight_decay"],
+            fp16=tp["fp16"],
+        )
     
         # Trainer
         trainer = get_trainer(
