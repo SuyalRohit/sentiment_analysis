@@ -64,4 +64,3 @@ def metrics_summary(y_true, y_pred, path: str) -> None:
     with open(path, "w") as f:
         json.dump(summary, f, indent=4)
     logger.info(f"Saved metrics summary to {path}")
-

@@ -15,7 +15,7 @@ def get_training_args(output_dir: str, run_name: str, num_train_epochs: int, lea
     return TrainingArguments(
         output_dir=output_dir,
         run_name=run_name,
-        evaluation_strategy="epoch",
+        eval_strategy="epoch",
         save_strategy="epoch",
         learning_rate=learning_rate,
         per_device_train_batch_size=per_device_train_batch_size,

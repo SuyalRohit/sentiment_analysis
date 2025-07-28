@@ -7,7 +7,6 @@ import pandas as pd
 from transformers import AutoTokenizer
 from typing import Any
 
-
 stop_words = set(stopwords.words('english'))
 nlp = spacy.load('en_core_web_sm')
 

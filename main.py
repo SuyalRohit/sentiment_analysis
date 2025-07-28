@@ -7,7 +7,6 @@ import yaml
 import random
 import numpy as np
 import torch
-
 from transformers import set_seed as hf_set_seed    
 from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModelForSequenceClassification
@@ -66,13 +65,6 @@ def main() -> None:
     
     logger = logging.getLogger(__name__)
     
-    # Schema Check
-    required = ["data_path", "output_dir", "seed", "model_name", "batch_size"]
-    for key in required:
-        if key not in cfg:
-            logger.error(f"Missing '{key}' in config")
-            sys.exit(1)
-
     # Seed for reproducibility
     seed = cfg.get("seed", None)
     if seed is None:
@@ -89,7 +81,7 @@ def main() -> None:
 
     # Data Loading
     try:
-        df = load_data(cfg["data"]["input_path"])
+        df = load_data(cfg["data"]["data_path"])
         logger.info(f"Loaded data has {len(df)} entries.")
     except Exception as e:
         logger.error(f"Data loading failed: {e}")
@@ -110,13 +102,13 @@ def main() -> None:
         logger.info("Starting text cleaning...")
 
         # Apply all cleaning steps (excluding lemmatization)
-        df_traditional["clean_text"] = df_traditional["review"].astype(str).apply(preprocess_text)
+        df_traditional["review"] = df_traditional["review"].astype(str).apply(preprocess_text)
 
         # Batch lemmatization with stopword removal
-        df_traditional["clean_text"] = batch_lemmatize(df_traditional["clean_text"].tolist())
+        df_traditional["review"] = batch_lemmatize(df_traditional["review"].tolist())
 
         logger.info("Text cleaning complete. Example clean text:")
-        logger.info(df["clean_text"].head(3).to_list())
+        logger.info(df_traditional["review"].head(3).to_list())
     except Exception as e:
         logger.error(f"Text cleaning failed: {e}")
         sys.exit(1)
@@ -243,17 +235,20 @@ def main() -> None:
         bert_cfg = cfg["bert"]
         tp = bert_cfg["training_params"]
         
+        use_cuda = torch.cuda.is_available()
+        fp16_enabled = bool(tp["fp16"]) and use_cuda
+
         training_args = get_training_args(
             output_dir=bert_cfg["output_dir"],
             run_name="bert-finetune",
-            num_train_epochs=tp["epochs"],
-            learning_rate=tp["learning_rate"],
-            per_device_train_batch_size=tp["per_device_train_batch_size"],
-            per_device_eval_batch_size=tp["per_device_eval_batch_size"],
-            weight_decay=tp["weight_decay"],
-            fp16=tp["fp16"],
-        )
-    
+            num_train_epochs=int(tp["epochs"]),
+            learning_rate=float(tp["learning_rate"]),
+            per_device_train_batch_size=int(tp["per_device_train_batch_size"]),
+            per_device_eval_batch_size=int(tp["per_device_eval_batch_size"]),
+            weight_decay=float(tp["weight_decay"]),
+            fp16=fp16_enabled,
+    )
+
         # Trainer
         trainer = get_trainer(
             model=model,

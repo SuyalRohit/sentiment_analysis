@@ -1,14 +1,15 @@
 argparse
-datasets
+datasets 3.3.2
 PyYAML
-numpy
-pandas
+numpy 1.26.4
+pandas 2.2.3
 matplotlib
 seaborn
 nltk
 spacy
 scikit-learn
 torch
-transformers
+transformers 4.49.0
 unicodedata
+spacy 3.8.7
 

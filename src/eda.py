@@ -23,7 +23,7 @@ def check_duplicates(df: pd.DataFrame) -> int:
     logger.info(f'Duplicate rows: {num_dupes}')
 
 
-def plot_basic_eda(df: pd.DataFrame, save: bool = True, out_dir: str=None) -> None:
+def plot_basic_eda(df: pd.DataFrame, save: bool = True, out_dir: str=None, stage: str=None) -> None:
     """
     Plots basic EDA visualizations for review data.
     Shows distribution of review lengths and sentiment classes.
@@ -40,10 +40,10 @@ def plot_basic_eda(df: pd.DataFrame, save: bool = True, out_dir: str=None) -> No
     if save:
         if out_dir is None:
             os.makedirs("outputs/plots", exist_ok=True)
-            plt.savefig("outputs/plots/Distribution of Words Per Review.png")
+            plt.savefig(f"outputs/plots/Distribution of Words Per Review {stage}.png")
         else:
             os.makedirs(out_dir, exist_ok=True)
-            plt.savefig(f"{out_dir}/Distribution of Words Per Review.png")
+            plt.savefig(f"{out_dir}/Distribution of Words Per Review {stage}.png")
     else:
         plt.show()
     plt.close()
@@ -56,10 +56,10 @@ def plot_basic_eda(df: pd.DataFrame, save: bool = True, out_dir: str=None) -> No
     if save:
         if out_dir is None:
             os.makedirs("outputs/plots", exist_ok=True)
-            plt.savefig("outputs/plots/Review Length vs Sentiment.png")
+            plt.savefig(f"outputs/plots/Review Length vs Sentiment {stage}.png")
         else:
             os.makedirs(out_dir, exist_ok=True)
-            plt.savefig(f"{out_dir}/Review Length vs Sentiment.png")
+            plt.savefig(f"{out_dir}/Review Length vs Sentiment {stage}.png")
     else:
         plt.show()
     plt.close()
@@ -72,10 +72,10 @@ def plot_basic_eda(df: pd.DataFrame, save: bool = True, out_dir: str=None) -> No
     if save:
         if out_dir is None:
             os.makedirs("outputs/plots", exist_ok=True)
-            plt.savefig("outputs/plots/Sentiment Count.png")
+            plt.savefig(f"outputs/plots/Sentiment Count {stage}.png")
         else:
             os.makedirs(out_dir, exist_ok=True)
-            plt.savefig(f"{out_dir}/Sentiment Count.png")
+            plt.savefig(f"{out_dir}/Sentiment Count {stage}.png")
     else:
         plt.show()
     plt.close()
@@ -91,5 +91,5 @@ def run_eda(df:pd.DataFrame, stage: str, logger, plot=True, out_dir: str = None)
     check_missing(df)
     check_duplicates(df)
     if plot:
-        plot_basic_eda(df, save=True, out_dir=None)
+        plot_basic_eda(df, save=True, out_dir=None, stage=stage)
     logger.info(f"EDA {stage} complete.")
