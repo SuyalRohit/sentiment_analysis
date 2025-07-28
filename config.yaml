@@ -1,0 +1,42 @@
+seed: 1234
+
+logging:
+  level: INFO
+  format: "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+  datefmt: "%Y-%m-%d %H:%M:%S"
+
+data:
+  input_path: "data/dataset.csv"
+  test_size: 0.2
+
+eda:
+  run: true
+  output_dir: "outputs/eda"
+
+text_cleaning:
+  lower: true
+  remove_punctuation: true
+  remove_stopwords: true
+
+traditional:
+  run: true
+  output_dir: "outputs/traditional"
+  params:
+    models: ["naive_bayes", "svm"]
+    cv_folds: 5
+
+bert:
+  run: true
+  val_split: 0.1
+  tokenizer:
+    model_name: "bert-base-uncased"
+    max_length: 128
+  training_params:
+    epochs: 3
+    batch_size: 16
+    learning_rate: 2e-5
+  output_dir: "outputs/bert"
+
+evaluation:
+  models_dir: ["outputs/traditional", "outputs/bert"]
+  output_dir: "outputs/evaluation"

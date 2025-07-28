@@ -23,15 +23,17 @@ def load_data(filepath: str) -> pd.DataFrame:
     raise ValueError(f"Missing Columns: {missing}")
     
     # Drop duplicates and log how many were removed
-    duplicate_removed = 0
     duplicates = df.duplicated().sum()
     if duplicates > 0:
         before = len(df)
         df.drop_duplicates(inplace=True)
         after = len(df)
         duplicate_removed = before - after
+        logger.info(f"Removed {duplicate_removed} duplicate records from data")
+    else:
+        logger.info("No duplicate records found.")
     
-    logger.info(f"Removed {duplicate_removed} duplicate records from data")
+    logger.info(f"Loaded {len(df)} rows from {filepath}")    
     return df
 
 def split_data(

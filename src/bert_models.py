@@ -3,6 +3,7 @@ import numpy as np
 from transformers import TrainingArguments, Trainer, PreTrainedModel
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from datasets import Dataset
+from typing Optional, Callable
 
 
 def get_training_args(output_dir: str, run_name: str, num_train_epochs: int=2) -> TrainingArguments:
@@ -28,7 +29,7 @@ def get_training_args(output_dir: str, run_name: str, num_train_epochs: int=2) -
         report_to="none"
     )
 
-def get_trainer(model: PreTrainedModel, args: TrainingArguments, train_dataset: Dataset, eval_dataset: Dataset) -> Trainer:
+def get_trainer(model: PreTrainedModel, args: TrainingArguments, train_dataset: Dataset, eval_dataset: Dataset, compute_metrics: Optional[Callable] = None) -> Trainer:
     """
     Instantiate and return a Hugging Face Trainer for model training and evaluation.
     """
