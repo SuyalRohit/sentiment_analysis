@@ -30,7 +30,7 @@ def model_factory(name: str, cfg_traditional: dict) -> tuple[Pipeline, dict[str,
         ])
         params = {
             "tfidf__max_df": cfg_traditional.get("tfidf_max_df", [0.75, 1.0]),
-            "clf__c": cfg_traditional.get("lsvc_alpha", [0.1, 1.0])
+            "clf__C": cfg_traditional.get("lsvc_c", [0.1, 1.0])
         }
     elif name == "nb":
         pipeline = Pipeline([

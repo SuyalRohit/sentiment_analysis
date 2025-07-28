@@ -1,9 +1,9 @@
 data:
+  input_path: data/reviews.csv
   test_size: 0.2
 
 
 paths:
-  input_path: data/reviews.csv
   plots_dir: outputs/plots
   log_dir: logs
   hf_output_dir: outputs/bert
@@ -39,7 +39,7 @@ traditional:
   cv_folds: 5
   tfidf_max_df: [0.75, 1.0]
   logreg_C: [0.1,1.0]
-  lsvc_c: [0.5,1.0]
+  lsvc_C: [0.5,1.0]
   nb_alpha: [0.5,1.0]
 
 bert:

@@ -1,6 +1,7 @@
 import os
 import argparse
 import logging
+import logging.config
 import sys
 import yaml
 import random
@@ -99,7 +100,7 @@ def main() -> None:
     
     # EDA before Cleaning
     try:
-        run_eda(df_traditional, "before data cleaning", logger)
+        run_eda(df_traditional, "before data cleaning", logger, cfg["paths"]["plots_dir"])
     except Exception as e:
         logger.error(f"EDA before cleaning failed: {e}")
         sys.exit(1)
@@ -122,7 +123,7 @@ def main() -> None:
     
     # EDA After Cleaning
     try:
-        run_eda(df_traditional, "after data cleaning", logger)
+        run_eda(df_traditional, "after data cleaning", logger, cfg["paths"]["plots_dir"])
     except Exception as e:
         logger.error(f"EDA after cleaning failed: {e}")
         sys.exit(1)
@@ -165,7 +166,7 @@ def main() -> None:
         for model_name, model in trained_models.items():
             y_pred = model.predict(X_test)
             
-            out_dir = cfg["evaluation"].get("output_dir", "outputs/evaluation")
+            out_dir = cfg["paths"]["eval_output_dir"]
             os.makedirs(out_dir, exist_ok=True)
             file_prefix = os.path.join(out_dir, model_name)
             
@@ -273,7 +274,7 @@ def main() -> None:
     # BERT Evaluation
     try:
         logger.info("Evaluating BERT model...")
-        output_dir = cfg["evaluation"].get("output_dir", "outputs/evaluation")
+        output_dir = cfg["paths"]["eval_output_dir"]
         os.makedirs(output_dir, exist_ok=True)
     
         # 1. Predict on the test set
@@ -281,8 +282,8 @@ def main() -> None:
         y_pred = np.argmax(eval_output.predictions, axis=1)
         y_true = eval_output.label_ids
 
-        target_names = cfg["label_mapping"]["target_names"]
-        labels = cfg["label_mapping"]["labels"]
+        target_names = cfg["evaluation"]["label_mapping"]["target_names"]
+        labels = cfg["evaluation"]["label_mapping"]["labels"]
 
     
         # 2. Confusion Matrix

@@ -75,14 +75,14 @@ def plot_basic_eda(df: pd.DataFrame, save: bool = True, out_dir: str=None) -> No
             plt.savefig("outputs/plots/Sentiment Count.png")
         else:
             os.makedirs(out_dir, exist_ok=True)
-            plt.savefig(f"{out_dir}/eSentiment Count.png")
+            plt.savefig(f"{out_dir}/Sentiment Count.png")
     else:
         plt.show()
     plt.close()
     
     del(df_new)
     
-def run_eda(df:pd.DataFrame, stage: str, logger, plot=True) -> None:
+def run_eda(df:pd.DataFrame, stage: str, logger, plot=True, out_dir: str = None) -> None:
     """
     Perform exploratory data analysis on the input DataFrame and generate summary plots.
     """
@@ -91,5 +91,5 @@ def run_eda(df:pd.DataFrame, stage: str, logger, plot=True) -> None:
     check_missing(df)
     check_duplicates(df)
     if plot:
-        plot_basic_eda(df)
+        plot_basic_eda(df, save=True, out_dir=None)
     logger.info(f"EDA {stage} complete.")

@@ -40,9 +40,9 @@ def remove_non_ascii(text: str) -> str:
     """Remove all non-ASCII characters."""
     return re.sub(r'[^\x00-\x7F]', '', text)
 
-def remove_stopwords(text: str) -> str:
+def remove_stopwords(text: str, stopword_list: set = stop_words) -> str:
     """Remove English stopwords."""
-    return ' '.join([w for w in text.split() if w not in stop_words])
+    return ' '.join([w for w in text.split() if w not in stopword_list])
 
 def lemmatize(text: str) -> str:
     """Lemmatize words using spaCy."""
